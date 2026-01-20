@@ -14,11 +14,11 @@ void AllPairsShortestPath::Build(const NavMesh &mesh) {
     return;
   }
 
-  std::vector<float> dist(n * n, std::numeric_limits<float>::max());
+  dist_matrix_.assign(n * n, std::numeric_limits<float>::max());
   next_hop_.assign(n * n, kNoNeighbor);
 
   for (uint16_t i = 0; i < n; ++i) {
-    dist[i * n + i] = 0;
+    dist_matrix_[i * n + i] = 0;
     next_hop_[i * n + i] = i;
 
     const auto &t = mesh.GetTriangle(i);
@@ -48,7 +48,7 @@ void AllPairsShortestPath::Build(const NavMesh &mesh) {
 
       for (size_t j = 0; j < neighbor_count; ++j) {
         float d = std::sqrt(length_sq[j]);
-        dist[i * n + neighbor_ids[j]] = d;
+        dist_matrix_[i * n + neighbor_ids[j]] = d;
         next_hop_[i * n + neighbor_ids[j]] = neighbor_ids[j];
       }
     }
@@ -56,7 +56,7 @@ void AllPairsShortestPath::Build(const NavMesh &mesh) {
 
   for (size_t k = 0; k < n; ++k) {
     for (size_t i = 0; i < n; ++i) {
-      float dik = dist[i * n + k];
+      float dik = dist_matrix_[i * n + k];
       if (dik == std::numeric_limits<float>::max())
         continue;
 
@@ -65,12 +65,12 @@ void AllPairsShortestPath::Build(const NavMesh &mesh) {
       size_t row_k_idx = k * n;
 
       for (size_t j = 0; j < n; ++j) {
-        float dkj = dist[row_k_idx + j];
+        float dkj = dist_matrix_[row_k_idx + j];
         if (dkj == std::numeric_limits<float>::max())
           continue;
 
-        if (dik + dkj < dist[row_i_idx + j]) {
-          dist[row_i_idx + j] = dik + dkj;
+        if (dik + dkj < dist_matrix_[row_i_idx + j]) {
+          dist_matrix_[row_i_idx + j] = dik + dkj;
           next_hop_[row_i_idx + j] = next_ik;
         }
       }

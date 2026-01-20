@@ -38,7 +38,7 @@ set(NAVIGATOR_SOURCES
     src/algorithm/funnel.cc
 )
 
-nanobind_add_module(navigator ${NAVIGATOR_SOURCES})
-target_include_directories(navigator PRIVATE src)
-install(TARGETS navigator DESTINATION .)
-
+nanobind_add_module(_navigator ${NAVIGATOR_SOURCES})
+target_include_directories(_navigator PRIVATE src)
+install(TARGETS _navigator DESTINATION navigator)
+install(FILES __init__.py mesh_converter.py DESTINATION navigator)

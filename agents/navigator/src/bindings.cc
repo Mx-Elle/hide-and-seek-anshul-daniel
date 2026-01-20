@@ -6,18 +6,7 @@
 
 namespace nb = nanobind;
 
-NB_MODULE(navigator, m) {
-  nb::class_<Vec2>(m, "Vec2")
-      .def(nb::init<float, float>())
-      .def_rw("x", &Vec2::x)
-      .def_rw("y", &Vec2::y);
-
-  nb::class_<AABB>(m, "AABB")
-      .def_rw("min_x", &AABB::min_x)
-      .def_rw("min_y", &AABB::min_y)
-      .def_rw("max_x", &AABB::max_x)
-      .def_rw("max_y", &AABB::max_y);
-
+NB_MODULE(_navigator, m) {
   nb::class_<Navigator>(m, "Navigator")
       .def(nb::init<>())
       .def("load_mesh",
@@ -61,6 +50,35 @@ NB_MODULE(navigator, m) {
       .def("find_triangle", &Navigator::FindTriangle)
       .def("num_triangles", &Navigator::NumTriangles)
       .def("is_ready", &Navigator::IsReady)
+      .def("get_distance_matrix",
+           [](Navigator &self) {
+             const auto &mat = self.GetAPSP().GetDistanceMatrix();
+             size_t n = self.NumTriangles();
+             size_t shape[2] = {n, n};
+             return nb::ndarray<nb::numpy, const float, nb::ndim<2>,
+                                nb::c_contig>(mat.data(), 2, shape,
+                                              nb::cast(self));
+           })
+      .def("get_all_centroids",
+           [](Navigator &self) {
+             size_t n = self.NumTriangles();
+             float *data = new float[n * 2];
+
+             for (size_t i = 0; i < n; ++i) {
+               auto verts = self.GetTriangleVertices(static_cast<uint16_t>(i));
+               float cx = (verts[0].x + verts[1].x + verts[2].x) / 3.0f;
+               float cy = (verts[0].y + verts[1].y + verts[2].y) / 3.0f;
+
+               data[i * 2] = cx;
+               data[i * 2 + 1] = cy;
+             }
+
+             size_t shape[2] = {n, 2};
+             return nb::ndarray<nb::numpy, float, nb::ndim<2>, nb::c_contig>(
+                 data, 2, shape, nb::capsule(data, [](void *p) noexcept {
+                   delete[] (float *)p;
+                 }));
+           })
       .def("get_triangle_vertices", [](Navigator &self, int id) {
         auto verts = self.GetTriangleVertices(static_cast<uint16_t>(id));
         return std::vector<std::pair<float, float>>{{verts[0].x, verts[0].y},
