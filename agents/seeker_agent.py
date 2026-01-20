@@ -1,6 +1,5 @@
 # Made By Anshul Noori
 import collections
-import logging
 
 import numpy as np
 from navigator import Navigator, navmesh_to_arrays
@@ -8,10 +7,6 @@ from navigator import Navigator, navmesh_to_arrays
 from agent_base import Agent
 from Mesh.nav_mesh import NavMesh
 from world_state import WorldState
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("Seeker")
-logger.setLevel(logging.INFO)
 
 
 class SeekerAgent(Agent):
