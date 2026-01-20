@@ -1,0 +1,18 @@
+[project]
+name = "navigator"
+version = "0.1.0"
+description = "Pathfinding library"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+]
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+ninja.make-fallback = true
+metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
+sdist.include = ["src/*", "CMakeLists.txt"]
+
+[build-system]
+requires = ["scikit-build-core", "nanobind"]
+build-backend = "scikit_build_core.build"
