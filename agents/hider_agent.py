@@ -1,8 +1,9 @@
 # written by daniel
 import collections
-import logging
+
 import numpy as np
 from navigator import Navigator, navmesh_to_arrays
+
 from agent_base import Agent
 from Mesh.nav_mesh import NavMesh
 from world_state import WorldState
